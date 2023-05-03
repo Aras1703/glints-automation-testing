@@ -1,98 +1,96 @@
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import glints.constants as const
+from glints.glints_filtration import GlintsFiltration
+from glints.glints_report import GlintsReport
+from prettytable import PrettyTable
+import time
 
-option = Options()
-option.add_experimental_option("detach", True)
 
-driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), 
-                          options = option)
-
-def glints_test():
-    driver.get(const.BASE_URL)
-    driver.implicitly_wait(15)
-    driver.maximize_window()
-
-def dropdown_languages(language):
-    choose_language = driver.find_element("xpath", "//span[@class]")
-    choose_language.click()
-
-    pick = driver.find_element("xpath", f"//li[{const.languages[language]}]")
-    pick.click()
-
-def to_login_page():
-    login_page = driver.find_element("xpath", "//nav//div[5]//div[3]//div//span")
-    login_page.click()
-
-    put_email = driver.find_element("id", "login-form-email")
-    put_email.click()
-    put_email.send_keys(const.credential['email'])
-
-    put_password = driver.find_element("id", "login-form-password")
-    put_password.click()
-    put_password.send_keys(const.credential['password'])
-
-    login = driver.find_element("xpath", "//form/div[4]//button")
-    login.click()
-
-def to_jobs_page():
-    jobs_page = driver.find_element("css selector", "a[aria-label='Jobs page']")
-    jobs_page.click()
-
-    #jobs_page = driver.find_element("xpath", "//nav/div[1]/a")
-    #jobs_page.click()
-
-def to_explore_page():
-    explore_page = driver.find_element("xpath", "//ul/li[2]//button")
-    explore_page.click()
-
-def search_jobs(search):
-    search_box = driver.find_element("xpath", "//div[contains(@class,'jIWpso')]//div[1]//input")
-    search_box.click()
-    search_box.send_keys(search)
+class Glints(webdriver.Chrome):
+    def __init__(self, driver_path=r"C:\Selenium Drivers", teardown=False):
+        self.driver_path = driver_path
+        self.teardown = teardown
+        os.environ['PATH'] += self.driver_path
+        options = webdriver.ChromeOptions()
+        #options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        options.add_experimental_option("detach", True)
+        super(Glints, self).__init__(service=Service(ChromeDriverManager().install()),
+                                       options=options)
+        self.implicitly_wait(15)
+        self.maximize_window()
     
-    searching = driver.find_element("css selector", "button[aria-label='Search button']")
-    searching.click()
+    def quit(self):
+        if self.teardown == True:
+            self.quit()
 
-def job_types(*category):
-    job_types = driver.find_element("xpath", "//div[contains(@class,'modal-dialog')]")
-    types = job_types.find_elements("xpath", 
-    "//div[contains(@class,'FilterList')]//div[2]//div//div[2]//div//div[contains(@class,'bfChNc')]//label[contains(@for,'jobTypes')]")
-    for cat in category:
-        for type in types:
-            if str(type.get_attribute("innerHTML")) == str(cat).capitalize():
-                type.click()
+    def glints_test(self):
+        self.get(const.BASE_URL)
+        self.implicitly_wait(15)
+        self.maximize_window()
 
-def remote_option():
-    remote_work = driver.find_element("xpath", "//div[contains(@class,'fFULNn')]//button")
-    remote_work.click()
+    def dropdown_languages(self, language):
+        choose_language = self.find_element("xpath", "//span[@class]")
+        choose_language.click()
 
-def work_locations(*towns):
-    locations = driver.find_element("xpath", "//div[contains(@class,'modal-dialog')]")
-    cities = locations.find_elements("xpath", 
-    "//div[contains(@class,'FilterList')]//div[4]//div//div[2]//div//div[contains(@class,'bfChNc')]//label[contains(@for,'cities')]")
-    for town in towns:
-        for city in cities:
-            if str(city.get_attribute("for")) == f"cities{town}":
-                city.click()
+        pick = self.find_element("xpath", f"//li[{const.languages[language]}]")
+        pick.click()
 
-def work_experiences(*years):
-    experiences = driver.find_element("xpath", "//div[contains(@class,'modal-dialog')]")
-    experience = experiences.find_elements("xpath",
-    "//div[contains(@class,'FilterList')]//div[5]//div//div[2]//div//div[contains(@class,'bfChNc')]//label[contains(@for,'ExperienceFilter')]")
-    for year in years:
-        for exp in experience:
-            if str(exp.get_attribute("for")) == f"yearsOfExperienceFilter{year}":
-                exp.click()
+    def to_login_page(self, email_phone, password):
+        login_page = self.find_element("xpath", "//nav//div[5]//div[3]//div//span")
+        login_page.click()
 
-def exclude_experience():
-    exclude = driver.find_element("xpath", "//div[contains(@class,'FilterList')]//div[5]//div//div[2]//div[2]//div//button")
-    exclude.click()
+    #def credential(self, email_phone, password):
+        put_email = self.find_element("id", "login-form-email")
+        put_email.send_keys(email_phone)
 
-def block_advertises():
-    block_advertise = driver.find_element("xpath", 
-                     "//div[contains(@class,'iZIzpf')]/div/div/div/header/button")
-    block_advertise.click()
+        put_password = self.find_element("id", "login-form-password")
+        put_password.send_keys(password)
+
+        login = self.find_element("xpath", "//form/div[4]//button")
+        login.click()
+
+    def to_jobs_page(self):
+        time.sleep(2)
+        #self.refresh()
+        jobs_page = self.find_element("css selector", "a[aria-label='Jobs page']")
+        jobs_page.click()
+
+    def to_explore_page(self):
+        time.sleep(2)
+        #self.refresh()
+        explore_page = self.find_element("xpath", "//ul/li[2]//button")
+        explore_page.click()
+
+    def search_jobs(self, search):
+        search_box = self.find_element("xpath", "//div[contains(@class,'jIWpso')]//div[1]//input")
+        search_box.click()
+        search_box.send_keys(search)
+
+        searching = self.find_element("css selector", "button[aria-label='Search button']")
+        searching.click()
+    
+    def job_filtration(self):
+        filter = GlintsFiltration(driver=self)
+        filter.job_types('internship', 'freelance')
+        filter.remote_option()
+        filter.work_locations(const.loc.get("Jkt"), const.loc.get("Bdg"))
+        #filter.block_advertisement()
+        filter.work_experiences(const.exp.get("<1"), const.exp.get("1-3"))
+        filter.exclude_experience()
+    
+    def report_summary(self):
+        job_boxes = self.find_element("xpath", "//div[contains(@class,'dPOPcp')]")
+        report = GlintsReport(job_boxes)
+        #print(len(report.pull_deal_boxes()))
+        display_table = PrettyTable(
+            field_names=["Job Position (Roles)", "Company", "Location"]
+        )
+        display_table.add_rows(report.retrieve_boxes_attributes())
+        print(display_table)
+        
+        
