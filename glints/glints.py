@@ -40,11 +40,11 @@ class Glints(webdriver.Chrome):
         pick = self.find_element("xpath", f"//li[{const.languages[language]}]")
         pick.click()
 
-    def to_login_page(self, email_phone, password):
+    def to_login_page(self):
         login_page = self.find_element("xpath", "//nav//div[5]//div[3]//div//span")
         login_page.click()
 
-    #def credential(self, email_phone, password):
+    def credential(self, email_phone, password):
         put_email = self.find_element("id", "login-form-email")
         put_email.send_keys(email_phone)
 
@@ -56,14 +56,12 @@ class Glints(webdriver.Chrome):
 
     def to_jobs_page(self):
         time.sleep(2)
-        #self.refresh()
         jobs_page = self.find_element("css selector", "a[aria-label='Jobs page']")
         jobs_page.click()
 
     def to_explore_page(self):
         time.sleep(2)
-        #self.refresh()
-        explore_page = self.find_element("xpath", "//ul/li[2]//button")
+        explore_page = self.find_element("xpath", "//ul/li[contains(@class,'tab-EXPLORE')]//button")
         explore_page.click()
 
     def search_jobs(self, search):
@@ -78,15 +76,14 @@ class Glints(webdriver.Chrome):
         filter = GlintsFiltration(driver=self)
         filter.job_types('internship', 'freelance')
         filter.remote_option()
-        filter.work_locations(const.loc.get("Jkt"), const.loc.get("Bdg"))
+        filter.work_locations("Jkt", "Tgr")
         #filter.block_advertisement()
-        filter.work_experiences(const.exp.get("<1"), const.exp.get("1-3"))
+        filter.work_experiences("1-3", "3-5")
         filter.exclude_experience()
     
     def report_summary(self):
         job_boxes = self.find_element("xpath", "//div[contains(@class,'dPOPcp')]")
         report = GlintsReport(job_boxes)
-        #print(len(report.pull_deal_boxes()))
         display_table = PrettyTable(
             field_names=["Job Position (Roles)", "Company", "Location"]
         )
