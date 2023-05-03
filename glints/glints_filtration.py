@@ -1,13 +1,13 @@
 # This file will be responsible to apply the filter jobs in our test case.
 # This file includes an instance methods.
 from selenium.webdriver.remote.webdriver import WebDriver
+import glints.constants as const
 
 class GlintsFiltration:
     def __init__(self, driver:WebDriver):
         self.driver = driver
     
     def job_types(self, *category):
-        #self.refresh()
         job_types = self.driver.find_element("xpath", "//div[contains(@class,'modal-dialog')]")
         types = job_types.find_elements("xpath", 
         "//div[contains(@class,'FilterList')]//div[2]//div//div[2]//div//div[contains(@class,'bfChNc')]//label[contains(@for,'jobTypes')]")
@@ -26,7 +26,7 @@ class GlintsFiltration:
         "//div[contains(@class,'FilterList')]//div[4]//div//div[2]//div//div[contains(@class,'bfChNc')]//label[contains(@for,'cities')]")
         for town in towns:
             for city in cities:
-                if str(city.get_attribute("for")) == f"cities{town}":
+                if str(city.get_attribute("for")) == f"cities{const.loc.get(town)}":
                     city.click()
 
     def work_experiences(self, *years):
@@ -35,7 +35,7 @@ class GlintsFiltration:
         "//div[contains(@class,'FilterList')]//div[5]//div//div[2]//div//div[contains(@class,'bfChNc')]//label[contains(@for,'ExperienceFilter')]")
         for year in years:
             for exp in experience:
-                if str(exp.get_attribute("for")) == f"yearsOfExperienceFilter{year}":
+                if str(exp.get_attribute("for")) == f"yearsOfExperienceFilter{const.exp.get(year)}":
                     exp.click()
 
     def exclude_experience(self):
